@@ -5,9 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\Author;
 use App\Http\Requests\AuthorRequest;
 use Illuminate\Http\JsonResponse;
+use App\Utils\DateUtils;
 
 class AuthorController extends Controller
 {
+    protected $dateUtils;
+
+    public function __construct(DateUtils $dateUtils)
+    {
+        $this->dateUtils = $dateUtils;
+    }
+
     public function index(): JsonResponse
     {
         $authors = Author::getAuthorsWithBookCount();
@@ -16,7 +24,7 @@ class AuthorController extends Controller
 
     public function store(AuthorRequest $request): JsonResponse
     {
-        $author = Author::createAuthor($request->validated());
+        $author = Author::createAuthor($request->validated(), $this->dateUtils);
         return response()->json($author, 201);
     }
 
@@ -29,7 +37,7 @@ class AuthorController extends Controller
     public function update(AuthorRequest $request, $id): JsonResponse
     {
         $author = Author::findOrFail($id);
-        $updatedAuthor = $author->updateAuthor($request->validated());
+        $updatedAuthor = $author->updateAuthor($request->validated(), $this->dateUtils);
         return response()->json($updatedAuthor);
     }
 }

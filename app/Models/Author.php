@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Utils\DateUtils;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -31,29 +32,19 @@ class Author extends Model
         return static::with('books')->findOrFail($id);
     }
 
-    public static function createAuthor(array $validatedData): static
+    public static function createAuthor(array $validatedData, DateUtils $dateUtils): static
     {
         if (isset($validatedData['date_of_birth'])) {
-            $dateTime = \DateTime::createFromFormat('d-m-Y', $validatedData['date_of_birth']);
-            if ($dateTime !== false) {
-                $validatedData['date_of_birth'] = $dateTime->format('Y-m-d');
-            } else {
-                $validatedData['date_of_birth'] = null;
-            }
+            $validatedData['date_of_birth'] = $dateUtils->convertDateFormat($validatedData['date_of_birth']);
         }
 
         return static::create($validatedData);
     }
 
-    public function updateAuthor(array $validatedData): static
+    public function updateAuthor(array $validatedData, DateUtils $dateUtils): static
     {
         if (isset($validatedData['date_of_birth'])) {
-            $dateTime = \DateTime::createFromFormat('d-m-Y', $validatedData['date_of_birth']);
-            if ($dateTime !== false) {
-                $validatedData['date_of_birth'] = $dateTime->format('Y-m-d');
-            } else {
-                $validatedData['date_of_birth'] = null;
-            }
+            $validatedData['date_of_birth'] = $dateUtils->convertDateFormat($validatedData['date_of_birth']);
         }
 
         $this->update($validatedData);

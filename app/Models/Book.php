@@ -2,11 +2,9 @@
 
 namespace App\Models;
 
+use App\Utils\DateUtils;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Pagination\LengthAwarePaginator;
 
 class Book extends Model
 {
@@ -24,15 +22,10 @@ class Book extends Model
         return static::with('author')->paginate($perPage);
     }
 
-    public static function createBook(array $data): static
+    public static function createBook(array $data, DateUtils $dateUtils): static
     {
         if (isset($data['publication_date'])) {
-            $dateTime = \DateTime::createFromFormat('d-m-Y', $data['publication_date']);
-            if ($dateTime !== false) {
-                $data['publication_date'] = $dateTime->format('Y-m-d');
-            } else {
-                $data['publication_date'] = null;
-            }
+            $data['publication_date'] = $dateUtils->convertDateFormat($data['publication_date']);
         }
 
         return static::create($data);
@@ -43,20 +36,14 @@ class Book extends Model
         return static::with('author')->findOrFail($id);
     }
 
-    public static function updateBook($id, array $data): static
+    public function updateBook(array $data, DateUtils $dateUtils): static
     {
-        $book = static::findOrFail($id);
-
         if (isset($data['publication_date'])) {
-            $dateTime = \DateTime::createFromFormat('d-m-Y', $data['publication_date']);
-            if ($dateTime !== false) {
-                $data['publication_date'] = $dateTime->format('Y-m-d');
-            } else {
-                $data['publication_date'] = null;
-            }
+            $data['publication_date'] = $dateUtils->convertDateFormat($data['publication_date']);
         }
 
-        $book->update($data);
-        return $book;
+        $this->update($data);
+        return $this;
     }
 }
+
