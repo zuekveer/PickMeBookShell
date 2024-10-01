@@ -12,6 +12,12 @@ class Book extends Model
 
     protected $fillable = ['author_id', 'title', 'annotation', 'publication_date'];
 
+    // Book's relationships
+    public function chapters()
+    {
+        return $this->hasMany(Chapter::class);
+    }
+
     public function author()
     {
         return $this->belongsTo(Author::class);
@@ -44,6 +50,12 @@ class Book extends Model
 
         $this->update($data);
         return $this;
+    }
+
+    public function updateTotalCharacterCount(): void
+    {
+        $totalCharacters = $this->chapters->sum(fn($chapter) => $chapter->getCharacterCount());
+        $this->update(['total_character_count' => $totalCharacters]);
     }
 }
 
